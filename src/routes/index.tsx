@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import {
   ArrowDown,
   ArrowRight,
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import heroImage from "@/assets/jdo-hero.jpg";
+import heroVideo from "@/assets/jdo-hero-video.mp4.asset.json";
 import craftImage from "@/assets/jdo-craft.jpg";
 import beforeImage from "@/assets/jdo-before.jpg";
 import afterImage from "@/assets/jdo-after.jpg";
@@ -67,9 +69,31 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const heroStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.14, delayChildren: 0.2 } },
+};
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 36 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const revealUp: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] } },
+};
+
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [comparison, setComparison] = useState(52);
+  const heroRef = useRef<HTMLElement>(null);
+  const craftRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(heroProgress, [0, 1], ["0%", "22%"]);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.08]);
+  const { scrollYProgress: craftProgress } = useScroll({ target: craftRef, offset: ["start end", "end start"] });
+  const craftY = useTransform(craftProgress, [0, 1], ["-6%", "6%"]);
 
   const submitQuote = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -96,19 +120,23 @@ function Index() {
         </nav>}
       </header>
 
-      <section id="top" className="relative min-h-[94svh] overflow-hidden bg-foreground text-primary-foreground">
-        <img src={heroImage} alt="Luxury living room with wide-plank oak flooring" width={1920} height={1080} className="cinematic-zoom absolute inset-0 h-full w-full object-cover object-center" />
+      <section ref={heroRef} id="top" className="relative min-h-[94svh] overflow-hidden bg-foreground text-primary-foreground">
+        <motion.div style={{ y: heroY, scale: heroScale }} className="absolute inset-0">
+          <img src={heroImage} alt="Luxury living room with wide-plank oak flooring" width={1920} height={1080} className="cinematic-zoom absolute inset-0 h-full w-full object-cover object-center" />
+          <video autoPlay muted loop playsInline poster={heroImage} className="absolute inset-0 hidden h-full w-full object-cover object-center md:block" src={heroVideo.url} />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-r from-foreground via-foreground/55 to-transparent" />
+        <div className="absolute inset-0 bg-foreground/25" />
         <div className="relative mx-auto flex min-h-[94svh] max-w-[1480px] items-end px-5 pb-16 pt-32 md:px-10 md:pb-24">
-          <div className="max-w-4xl animate-fade-in">
-            <p className="mb-6 text-xs uppercase tracking-[0.28em] text-primary-foreground/70">Crafted interiors · Georgia</p>
-            <h1 className="max-w-3xl font-display text-6xl leading-[0.92] md:text-8xl lg:text-[7.2rem]">Beautiful Floors.<br/><span className="italic">Expertly Installed.</span></h1>
-            <p className="mt-8 max-w-xl text-base font-light leading-7 text-primary-foreground/75">Expertos en Instalación de Pisos y Carpetas: Transformamos tu espacio con calidad y precisión.</p>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Button asChild variant="premium-light" size="lg"><a href="#contact">Get a Quote <ArrowRight /></a></Button>
-              <Button asChild variant="premium-outline" size="lg"><a href="#projects">View Our Work <ArrowDown /></a></Button>
-            </div>
-          </div>
+          <motion.div variants={heroStagger} initial="hidden" animate="show" className="max-w-4xl">
+            <motion.p variants={heroItem} className="mb-6 text-xs uppercase tracking-[0.28em] text-primary-foreground/70">Crafted interiors · Georgia</motion.p>
+            <motion.h1 variants={heroItem} className="max-w-3xl font-display text-6xl leading-[0.92] md:text-8xl lg:text-[7.2rem]">Beautiful Floors.<br/><span className="italic">Expertly Installed.</span></motion.h1>
+            <motion.p variants={heroItem} className="mt-8 max-w-xl text-base font-light leading-7 text-primary-foreground/75">Expertos en Instalación de Pisos y Carpetas: Transformamos tu espacio con calidad y precisión.</motion.p>
+            <motion.div variants={heroItem} className="mt-10 flex flex-wrap gap-3">
+              <motion.span whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="inline-flex"><Button asChild variant="premium-light" size="lg"><a href="#contact">Get a Quote <ArrowRight /></a></Button></motion.span>
+              <motion.span whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} className="inline-flex"><Button asChild variant="premium-outline" size="lg"><a href="#projects">View Our Work <ArrowDown /></a></Button></motion.span>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
