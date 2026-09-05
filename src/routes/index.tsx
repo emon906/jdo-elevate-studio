@@ -69,9 +69,31 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const heroStagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.14, delayChildren: 0.2 } },
+};
+
+const heroItem: Variants = {
+  hidden: { opacity: 0, y: 36 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const revealUp: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.85, ease: [0.22, 1, 0.36, 1] } },
+};
+
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [comparison, setComparison] = useState(52);
+  const heroRef = useRef<HTMLElement>(null);
+  const craftRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(heroProgress, [0, 1], ["0%", "22%"]);
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.08]);
+  const { scrollYProgress: craftProgress } = useScroll({ target: craftRef, offset: ["start end", "end start"] });
+  const craftY = useTransform(craftProgress, [0, 1], ["-6%", "6%"]);
 
   const submitQuote = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
