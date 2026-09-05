@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import {
   ArrowDown,
   ArrowRight,
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import heroImage from "@/assets/jdo-hero.jpg";
+import heroVideo from "@/assets/jdo-hero-video.mp4.asset.json";
 import craftImage from "@/assets/jdo-craft.jpg";
 import beforeImage from "@/assets/jdo-before.jpg";
 import afterImage from "@/assets/jdo-after.jpg";
